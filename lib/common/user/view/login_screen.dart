@@ -3,8 +3,10 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:prac/common/component/custom_text_form.dart';
 import 'package:prac/common/const/colors.dart';
+import 'package:prac/common/const/data.dart';
 import 'package:prac/common/layout/default_layout.dart';
 import 'package:prac/common/view/root_tab.dart';
 
@@ -76,14 +78,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     );
 
+                    final accessToken = response.data['accessToken'];
+                    final refreshToken = response.data['refreshToken'];
+
+                    await storage.write(key: ACCESS_TOKEN_KEY, value: accessToken);
+                    await storage.write(key: REFRESH_TOKEN_KEY, value: refreshToken);
+
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => RootTab(),
                       ),
                     );
-
-                    print(response.data);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: PRIMARY_COLOR,
