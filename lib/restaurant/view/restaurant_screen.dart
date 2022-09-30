@@ -38,19 +38,7 @@ class RestaurantScreen extends StatelessWidget {
             itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
               final item = snapshot.data![index];
-              final pItem = RestaurantModel(
-                id: item['id'],
-                name: item['name'],
-                thumbUrl: item['thumbUrl'],
-                tags: List<String>.from(item['tags']),
-                priceRange: RestaurantPriceRange.values.firstWhere(
-                  (element) => element.name == item['priceRange'],
-                ),
-                ratings: item['ratings'],
-                ratingsCount: item['ratingsCount'],
-                deliveryTime: item['deliveryTime'],
-                deliveryFee: item['deliveryFee'],
-              );
+              final pItem = RestaurantModel.fromJson(item);
 
               return RestaurantCard(
                 image: Image.network(
