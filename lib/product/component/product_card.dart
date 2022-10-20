@@ -1,8 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:prac/common/const/colors.dart';
+import 'package:prac/common/const/data.dart';
+import 'package:prac/restaurant/model/restaurant_detail_model.dart';
 
 class ProductCard extends StatelessWidget {
-  const ProductCard({Key? key}) : super(key: key);
+  final String imgUrl;
+  final String name;
+  final String detail;
+  final int price;
+
+  const ProductCard({
+    Key? key,
+    required this.imgUrl,
+    required this.name,
+    required this.detail,
+    required this.price,
+  }) : super(key: key);
+
+  factory ProductCard.fromModel({
+    required RestaurantProductModel model,
+  }) {
+    return ProductCard(
+      imgUrl: model.imgUrl,
+      name: model.name,
+      detail: model.detail,
+      price: model.price,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -11,8 +35,8 @@ class ProductCard extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Image.asset(
-              'asset/img/food/ddeok_bok_gi.jpg',
+            child: Image.network(
+              'http://$ip/$imgUrl',
               width: 110,
               height: 110,
               fit: BoxFit.cover,
@@ -25,14 +49,14 @@ class ProductCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  '떡볶이',
+                  name,
                   style: TextStyle(
                     fontSize: 18.0,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 Text(
-                  '전통 떡볶이의 정석!\n맛있습니다.',
+                  detail,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -41,7 +65,7 @@ class ProductCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '￦10000',
+                  '￦$price',
                   textAlign: TextAlign.right,
                   style: TextStyle(
                     color: PRIMARY_COLOR,
