@@ -66,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       'http://$ip/auth/login',
                       options: Options(
                         headers: {
-                          'authorization': 'Bearer $token',
+                          'authorization': 'Basic $token',
                         },
                       ),
                     );
