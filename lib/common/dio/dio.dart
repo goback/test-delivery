@@ -1,10 +1,28 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:prac/common/const/data.dart';
+import 'package:prac/common/secure_storage/secure_storage.dart';
+
+final dioProvider = Provider<Dio>(
+  (ref) {
+    final dio = Dio();
+    final storage = ref.watch<FlutterSecureStorage>(secureStorageProvider);
+    dio.interceptors.add(CustomInterceptor(storage: storage));
+    return dio;
+  },
+);
 
 class CustomInterceptor extends Interceptor {
+  final FlutterSecureStorage storage;
+
+  CustomInterceptor({
+    required this.storage,
+  });
+
   @override
-  Future<void> onRequest(RequestOptions options,
-      RequestInterceptorHandler handler) async {
+  Future<void> onRequest(
+      RequestOptions options, RequestInterceptorHandler handler) async {
     if (options.headers['accessToken'] == 'true') {
       options.headers.remove('accessToken');
       final token = await storage.read(key: ACCESS_TOKEN_KEY);
@@ -36,7 +54,8 @@ class CustomInterceptor extends Interceptor {
         final Dio dio = Dio();
 
         final refreshResponse = await dio.post('http://$ip/auth/token',
-            options: Options(headers: {'authorization': 'Bearer $refreshToken'}));
+            options:
+                Options(headers: {'authorization': 'Bearer $refreshToken'}));
 
         final accessToken = refreshResponse.data['accessToken'];
 
@@ -51,7 +70,7 @@ class CustomInterceptor extends Interceptor {
         final response = await dio.fetch(requestOptions);
         return handler.resolve(response);
       }
-    } on DioError catch(e) {
+    } on DioError catch (e) {
       return handler.reject(e);
     }
   }
