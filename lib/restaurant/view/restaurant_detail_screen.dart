@@ -1,8 +1,5 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prac/common/const/data.dart';
-import 'package:prac/common/dio/dio.dart';
 import 'package:prac/common/layout/default_layout.dart';
 import 'package:prac/product/component/product_card.dart';
 import 'package:prac/restaurant/component/restaurant_card.dart';
@@ -16,15 +13,6 @@ class RestaurantDetailScreen extends ConsumerWidget {
     Key? key,
     required this.id,
   }) : super(key: key);
-
-  Future<RestaurantDetailModel> getRestaurantDetail(
-      {required WidgetRef ref}) async {
-    final dio = ref.watch<Dio>(dioProvider);
-    final restaurantRepository =
-        RestaurantRepository(dio, baseUrl: 'http://$ip/restaurant');
-
-    return restaurantRepository.getRestaurantDetail(id: id);
-  }
 
   SliverToBoxAdapter renderTop({
     required RestaurantDetailModel model,
@@ -76,7 +64,7 @@ class RestaurantDetailScreen extends ConsumerWidget {
     return DefaultLayout(
       title: '불타는 떡볶이',
       body: FutureBuilder<RestaurantDetailModel>(
-        future: getRestaurantDetail(ref: ref),
+        future: ref.watch(restaurantRepositoryProvider).getRestaurantDetail(id: id),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Center(
