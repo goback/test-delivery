@@ -1,19 +1,22 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:prac/common/const/colors.dart';
 import 'package:prac/common/const/data.dart';
 import 'package:prac/common/layout/default_layout.dart';
+import 'package:prac/common/secure_storage/secure_storage.dart';
 import 'package:prac/common/view/root_tab.dart';
 import 'package:prac/user/view/login_screen.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
@@ -22,6 +25,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void checkToken() async {
+    final storage = ref.read<FlutterSecureStorage>(secureStorageProvider);
     final accessToken = await storage.read(key: ACCESS_TOKEN_KEY);
     final refreshToken = await storage.read(key: REFRESH_TOKEN_KEY);
 
@@ -37,20 +41,21 @@ class _SplashScreenState extends State<SplashScreen> {
         ),
       );
 
-      await storage.write(key: ACCESS_TOKEN_KEY, value: response.data['accessToken']);
+      await storage.write(
+          key: ACCESS_TOKEN_KEY, value: response.data['accessToken']);
 
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
           builder: (context) => RootTab(),
         ),
-            (route) => false,
+        (route) => false,
       );
     } catch (e) {
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
           builder: (context) => LoginScreen(),
         ),
-            (route) => false,
+        (route) => false,
       );
     }
   }
