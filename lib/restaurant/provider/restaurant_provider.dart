@@ -21,7 +21,11 @@ class RestaurantStateNotifier extends StateNotifier<CursorPaginationBase> {
     paginate();
   }
 
-  void paginate() async {
+  void paginate({
+    int fetchCount = 20,
+    bool fetchMore = false,
+    bool forceRefetch = false,
+  }) async {
     final response = await repository.paginate();
     state = response;
   }
