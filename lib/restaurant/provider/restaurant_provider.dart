@@ -26,7 +26,12 @@ class RestaurantStateNotifier extends StateNotifier<CursorPaginationBase> {
     bool fetchMore = false,
     bool forceRefetch = false,
   }) async {
-    final response = await repository.paginate();
-    state = response;
+    if (state is CursorPaginationModel && !forceRefetch) {
+      final pState = state as CursorPaginationModel;
+
+      if (!pState.meta.hasMore) {
+        return;
+      }
+    }
   }
 }
