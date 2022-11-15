@@ -27,46 +27,65 @@ class RestaurantStateNotifier extends StateNotifier<CursorPaginationBase> {
     bool fetchMore = false,
     bool forceRefetch = false,
   }) async {
-    if (state is CursorPaginationModel && !forceRefetch) {
-      final pState = state as CursorPaginationModel;
+    try {
+      if (state is CursorPaginationModel && !forceRefetch) {
+        final pState = state as CursorPaginationModel;
 
-      if (!pState.meta.hasMore) {
+        if (!pState.meta.hasMore) {
+          return;
+        }
+      }
+
+      final isLoading = state is CursorPaginationLoading;
+      final isRefetching = state is CursorPaginationRefetching;
+      final isFetchingMore = state is CursorPaginationFetchingMore;
+
+      if (fetchMore && (isLoading || isRefetching || isFetchingMore)) {
         return;
       }
-    }
 
-    final isLoading = state is CursorPaginationLoading;
-    final isRefetching = state is CursorPaginationRefetching;
-    final isFetchingMore = state is CursorPaginationFetchingMore;
+      PaginationParams paginationParams = PaginationParams(count: fetchCount);
 
-    if (fetchMore && (isLoading || isRefetching || isFetchingMore)) {
-      return;
-    }
+      if (fetchMore) {
+        final pState = state as CursorPaginationModel;
 
-    PaginationParams paginationParams = PaginationParams(count: fetchCount);
+        state = CursorPaginationFetchingMore(
+          meta: pState.meta,
+          data: pState.data,
+        );
 
-    if (fetchMore) {
-      final pState = state as CursorPaginationModel;
+        paginationParams =
+            paginationParams.copyWith(after: pState.data.last.id);
+      } else {
+        if (state is CursorPaginationModel && !forceRefetch) {
+          final pState = state as CursorPaginationModel;
 
-      state = CursorPaginationFetchingMore(
-        meta: pState.meta,
-        data: pState.data,
-      );
+          state = CursorPaginationRefetching(
+            meta: pState.meta,
+            data: pState.data,
+          );
+        } else {
+          state = CursorPaginationLoading();
+        }
+      }
 
-      paginationParams = paginationParams.copyWith(after: pState.data.last.id);
-    }
+      // 추가 데이터
+      final response =
+          await repository.paginate(paginationParams: paginationParams);
 
-    // 추가 데이터
-    final response = await repository.paginate(paginationParams: paginationParams);
+      if (state is CursorPaginationFetchingMore) {
+        // 기존 데이터
+        final pState = state as CursorPaginationFetchingMore;
 
-    if (state is CursorPaginationFetchingMore) {
-      // 기존 데이터
-      final pState = state as CursorPaginationFetchingMore;
-
-      state = response.copyWith(data: [
-        ...pState.data,
-        ...response.data,
-      ]);
+        state = response.copyWith(data: [
+          ...pState.data,
+          ...response.data,
+        ]);
+      } else {
+        state = response;
+      }
+    } catch (e) {
+      state = CursorPaginationError(message: '데이터를 가져오지 못했습니다.');
     }
   }
 }
