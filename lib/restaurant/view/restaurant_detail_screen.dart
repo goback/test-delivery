@@ -7,13 +7,24 @@ import 'package:prac/restaurant/model/restaurant_detail_model.dart';
 import 'package:prac/restaurant/model/restaurant_model.dart';
 import 'package:prac/restaurant/provider/restaurant_provider.dart';
 
-class RestaurantDetailScreen extends ConsumerWidget {
+class RestaurantDetailScreen extends ConsumerStatefulWidget {
   final String id;
 
   const RestaurantDetailScreen({
     Key? key,
     required this.id,
   }) : super(key: key);
+
+  @override
+  ConsumerState<RestaurantDetailScreen> createState() => _RestaurantDetailScreenState();
+}
+
+class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen> {
+  @override
+  void initState() {
+    super.initState();
+    ref.read(restaurantProvider.notifier).getDetail(id: widget.id);
+  }
 
   SliverToBoxAdapter renderTop({
     required RestaurantModel model,
@@ -61,8 +72,8 @@ class RestaurantDetailScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(restaurantDetailProvider(id));
+  Widget build(BuildContext context) {
+    final state = ref.watch(restaurantDetailProvider(widget.id));
 
     if (state == null) {
       return DefaultLayout(
@@ -77,8 +88,9 @@ class RestaurantDetailScreen extends ConsumerWidget {
       body: CustomScrollView(
         slivers: [
           renderTop(model: state),
-          // renderLabel(),
-          // renderProducts(products: item.products),
+          if (state is RestaurantDetailModel) renderLabel(),
+          if (state is RestaurantDetailModel)
+            renderProducts(products: state.products),
         ],
       ),
     );

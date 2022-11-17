@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prac/common/model/cursor_pagination_model.dart';
 import 'package:prac/restaurant/component/restaurant_card.dart';
-import 'package:prac/restaurant/view/restaurant_detail_screen.dart';
 import 'package:prac/restaurant/provider/restaurant_provider.dart';
+import 'package:prac/restaurant/view/restaurant_detail_screen.dart';
 
 class RestaurantScreen extends ConsumerStatefulWidget {
   const RestaurantScreen({Key? key}) : super(key: key);
