@@ -4,7 +4,8 @@ import 'package:prac/common/layout/default_layout.dart';
 import 'package:prac/product/component/product_card.dart';
 import 'package:prac/restaurant/component/restaurant_card.dart';
 import 'package:prac/restaurant/model/restaurant_detail_model.dart';
-import 'package:prac/restaurant/repository/restaurant_repository.dart';
+import 'package:prac/restaurant/model/restaurant_model.dart';
+import 'package:prac/restaurant/provider/restaurant_provider.dart';
 
 class RestaurantDetailScreen extends ConsumerWidget {
   final String id;
@@ -15,7 +16,7 @@ class RestaurantDetailScreen extends ConsumerWidget {
   }) : super(key: key);
 
   SliverToBoxAdapter renderTop({
-    required RestaurantDetailModel model,
+    required RestaurantModel model,
   }) {
     return SliverToBoxAdapter(
       child: RestaurantCard.fromModel(
@@ -61,27 +62,24 @@ class RestaurantDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(restaurantDetailProvider(id));
+
+    if (state == null) {
+      return DefaultLayout(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return DefaultLayout(
       title: '불타는 떡볶이',
-      body: FutureBuilder<RestaurantDetailModel>(
-        future: ref.watch(restaurantRepositoryProvider).getRestaurantDetail(id: id),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-
-          final item = snapshot.data!;
-
-          return CustomScrollView(
-            slivers: [
-              renderTop(model: item),
-              renderLabel(),
-              renderProducts(products: item.products),
-            ],
-          );
-        },
+      body: CustomScrollView(
+        slivers: [
+          renderTop(model: state),
+          // renderLabel(),
+          // renderProducts(products: item.products),
+        ],
       ),
     );
   }
