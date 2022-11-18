@@ -6,6 +6,7 @@ import 'package:prac/restaurant/component/restaurant_card.dart';
 import 'package:prac/restaurant/model/restaurant_detail_model.dart';
 import 'package:prac/restaurant/model/restaurant_model.dart';
 import 'package:prac/restaurant/provider/restaurant_provider.dart';
+import 'package:skeletons/skeletons.dart';
 
 class RestaurantDetailScreen extends ConsumerStatefulWidget {
   final String id;
@@ -16,10 +17,12 @@ class RestaurantDetailScreen extends ConsumerStatefulWidget {
   }) : super(key: key);
 
   @override
-  ConsumerState<RestaurantDetailScreen> createState() => _RestaurantDetailScreenState();
+  ConsumerState<RestaurantDetailScreen> createState() =>
+      _RestaurantDetailScreenState();
 }
 
-class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen> {
+class _RestaurantDetailScreenState
+    extends ConsumerState<RestaurantDetailScreen> {
   @override
   void initState() {
     super.initState();
@@ -71,6 +74,33 @@ class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen>
     );
   }
 
+  SliverPadding renderLoading() {
+    return SliverPadding(
+      padding: EdgeInsets.symmetric(
+        vertical: 16.0,
+        horizontal: 16.0,
+      ),
+      sliver: SliverList(
+        delegate: SliverChildListDelegate(
+          List.generate(
+            3,
+            (index) {
+              return Padding(
+                padding: EdgeInsets.only(bottom: 32.0),
+                child: SkeletonParagraph(
+                  style: SkeletonParagraphStyle(
+                    lines: 5,
+                    padding: EdgeInsets.zero,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(restaurantDetailProvider(widget.id));
@@ -88,6 +118,7 @@ class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen>
       body: CustomScrollView(
         slivers: [
           renderTop(model: state),
+          if (state is! RestaurantDetailModel) renderLoading(),
           if (state is RestaurantDetailModel) renderLabel(),
           if (state is RestaurantDetailModel)
             renderProducts(products: state.products),
